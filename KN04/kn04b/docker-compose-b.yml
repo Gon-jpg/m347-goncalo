@@ -1,0 +1,25 @@
+services:
+  m347-kn04b-web:
+    container_name: m347-kn04b-web
+    image: gonjpg/m347:kn02b-web
+    ports:
+      - "8086:80"
+    networks:
+      - kn04b-net
+    depends_on:
+      - m347-kn04b-db
+
+  m347-kn04b-db:
+    container_name: m347-kn04b-db
+    image: gonjpg/m347:kn02b-db
+    networks:
+      - kn04b-net
+
+networks:
+  kn04b-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.11.0.0/16
+          ip_range: 172.11.5.0/24
+          gateway: 172.11.5.254
