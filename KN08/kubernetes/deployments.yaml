@@ -1,0 +1,134 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: gonjpg/m347:kn08-frontend
+          ports:
+            - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: account-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: account
+  template:
+    metadata:
+      labels:
+        app: account
+    spec:
+      containers:
+        - name: account
+          image: gonjpg/m347:kn08-account
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: appsettings-volume
+              mountPath: /App/appsettings.json
+              subPath: appsettings.json
+      volumes:
+        - name: appsettings-volume
+          configMap:
+            name: account-appsettings
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: buysell-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: buysell
+  template:
+    metadata:
+      labels:
+        app: buysell
+    spec:
+      containers:
+        - name: buysell
+          image: gonjpg/m347:kn08-buysell
+          ports:
+            - containerPort: 8002
+          env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: kn08-config
+                  key: db-host
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: kn08-config
+                  key: db-name
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: kn08-secret
+                  key: db-user
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kn08-secret
+                  key: db-password
+            - name: ACCOUNT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: kn08-config
+                  key: account-url
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sendreceive-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sendreceive
+  template:
+    metadata:
+      labels:
+        app: sendreceive
+    spec:
+      containers:
+        - name: sendreceive
+          image: gonjpg/m347:kn08-sendreceive
+          ports:
+            - containerPort: 8003
+          env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: kn08-config
+                  key: db-host
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: kn08-config
+                  key: db-name
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: kn08-secret
+                  key: db-user
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kn08-secret
+                  key: db-password
