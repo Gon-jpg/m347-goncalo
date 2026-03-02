@@ -1,0 +1,35 @@
+services:
+  kn05-web1:
+    container_name: kn05-web1
+    image: nginx:latest
+    volumes:
+      # Long syntax - named volume
+      - type: volume
+        source: kn05-named-vol
+        target: /data/named
+      # Long syntax - bind mount
+      - type: bind
+        source: ./bindmount
+        target: /data/bind
+      # Long syntax - tmpfs
+      - type: tmpfs
+        target: /data/tmpfs
+    networks:
+      - kn05-net
+
+  kn05-web2:
+    container_name: kn05-web2
+    image: nginx:latest
+    volumes:
+      # Short syntax - named volume
+      - kn05-named-vol:/data/named
+    networks:
+      - kn05-net
+
+volumes:
+  kn05-named-vol:
+    driver: local
+
+networks:
+  kn05-net:
+    driver: bridge
